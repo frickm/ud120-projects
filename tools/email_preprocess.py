@@ -38,6 +38,11 @@ def preprocess(words_file="word_data.pkl", authors_file="email_authors.pkl"):
     features_train, features_test, labels_train, labels_test = \
         cross_validation.train_test_split(word_data, authors, test_size=0.1, random_state=42)
 
+    import sklearn.feature_extraction.text as text
+    vec = text.CountVectorizer()
+    transform = vec.fit_transform(features_test)
+    ar = transform.toarray()
+
     ### text vectorization--go from strings to lists of numbers
     vectorizer = TfidfVectorizer(sublinear_tf=True, max_df=0.5,
                                  stop_words='english')
@@ -46,7 +51,7 @@ def preprocess(words_file="word_data.pkl", authors_file="email_authors.pkl"):
 
     ### feature selection, because text is super high dimensional and
     ### can be really computationally chewy as a result
-    selector = SelectPercentile(f_classif, percentile=10)
+    selector = SelectPercentile(f_classif, percentile=1)
     selector.fit(features_train_transformed, labels_train)
     features_train_transformed = selector.transform(features_train_transformed).toarray()
     features_test_transformed = selector.transform(features_test_transformed).toarray()
